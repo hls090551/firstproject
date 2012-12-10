@@ -1,0 +1,141 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head><title> Backbone °æ Tab ÇÐ»» </title><meta name="Generator" content="EditPlus"><meta name="Author" content=""><meta name="Keywords" content=""><meta name="Description" content=""><style>#glb{width:600px; height:500px; border:1px solid #ccc; margin:0 auto;}#top{height:80px; border-bottom:1px solid #ccc; background:#eee;}#bottom{height:420px;}#top > div{float:left;}#bottom > div{float:left;}h2{margin:0; padding:0; float:left; width:100px; text-align:center; font-size:14px; line-height:80px; height:80px; border-right:1px solid #ccc; cursor:pointer;}p{margin:0; padding:0; text-align:center; font-size:14px; height:420px; display:none;}.sle{background:#aaa;}.dis{display:block;}</style></head>
+
+ <body>
+	<div id="glb">
+		<div id="top">
+			
+		</div> 
+		<div id="bottom">
+			<p class="dis">
+				<a href="#/posts/120">Post 120</a>
+			</p>
+			<p>2</p>
+			<p>3</p>
+		</div>
+	</div> 
+ </body>
+ <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script> 
+ <script src="http://documentcloud.github.com/underscore/underscore-min.js"></script>
+ <script src="http://documentcloud.github.com/backbone/backbone-min.js"></script> 
+ <script type="text/template" id="h2-template">
+	<h2><%= tab %></h2>
+ </script>
+ <script type="text/template" id="p-template">
+	<p><%= content %></p>
+ </script>
+ <script type="text/template" id="template">
+	<div id="top"></div>
+	<div id="bottom"></div>
+ </script>
+ <script>
+	(function($){ 
+		var datas=[
+			{tab:"TAB_1",content:"CONTENT1_CONTENT1_CONTENT1_CONTENT1_CONTENT1_CONTENT1_CONTENT1_CONTENT1_CONTENT1"},
+			{tab:"TAB_2",content:"CONTENT2_CONTENT2_CONTENT2_CONTENT2_CONTENT2_CONTENT2_CONTENT2_CONTENT2_CONTENT2"},
+			{tab:"TAB_3",content:"CONTENT3_CONTENT3_CONTENT3_CONTENT3_CONTENT3_CONTENT3_CONTENT3_CONTENT3_CONTENT3"}
+		];
+
+		Page = Backbone.Model.extend({
+			
+		});
+		Pages = Backbone.Collection.extend({
+			model : Page
+		});
+		approuter = Backbone.Router.extend({
+			routes:{
+				"/posts/:id":"getPost",
+				"*actions":"defaultRoute"
+			},
+			getPost:function(id){
+				alert(id);
+			},
+			defaultRoute:function(actions){
+				alert(actions);
+			}
+		});
+		Page_h2_View = Backbone.View.extend({
+			//tagName: "div",
+			//id: "top",
+			events: {
+				"click h2": "tabchange"
+			},
+			render: function (){
+				var template = _.template($('#h2-template').html());
+				$(this.el).html(template(this.model.toJSON()));
+				return this;
+			},
+			tabchange: function (){
+				var h2_index=this.$el.index();
+				for(var i = 0; i<$('p').length; i++){
+					if(i == h2_index){
+						$('p')[i].className="dis";
+						$('h2')[i].className="sle";
+					}else{
+						$('p')[i].className=" ";	
+						$('h2')[i].className=" ";
+					}
+				}
+			}
+		});
+		Page_p_View = Backbone.View.extend({
+			//tagName: "div",
+			//id: "bottom",
+			render: function (){
+				var template = _.template($('#p-template').html());
+				$(this.el).html(template(this.model.toJSON()));
+				return this;
+			}
+		});
+		PagesView = Backbone.View.extend({
+			//tagName: "h2",
+			//el: $("#top"),
+			//template: _.template($('').html()),
+
+			tagName: "div",
+			id: "glb",
+			//events: {
+			//	"click h2": "tabchange"
+			//},
+			render: function (){
+				//var template = _.template($('#h2-template').html(),{data1:1,data2:2,data3:3});
+				var template = _.template($('#template').html());
+				var that = this;
+				this.$el.html(template());
+				_.each(this.collection.models,function (item) {
+					var page_p = new Page_p_View({
+						model: item
+					});
+					var page_h2 = new Page_h2_View({
+						model: item
+					});
+					this.$el.children().first().append(page_h2.render().el);
+					this.$el.children().last().append(page_p.render().el);
+				},this);
+				this.$el.appendTo('body');
+				//$("h2:first")[0].className="sle";
+				$("h2:first").addClass("sle");
+				$("p:first").addClass("dis");
+				//$("#glb").prepend(this.el);
+			},
+			initialize: function (){
+			  /*$('<div id="glb"></div>').append('<div id="top"></div><div id="bottom"></div>').appendTo('body');
+				$("#top").append('<h2 class="sle">TAB 1</h2><h2 class="sle">TAB 2</h2><h2 class="sle">TAB 3</h2>');
+				$("#bottom").append('<p class="dis">P1</p><p>P2</p><p>P3</p>');*/
+			  /*$("h2").click(function(){
+					alert($(this).index());
+				});*/
+				this.collection = new Pages(datas);
+				this.render();
+			}
+		});
+		
+		//var pages = new PagesView();
+		//var page = new PageView({el: $("#glb")});
+		var app_router = new approuter;
+		Backbone.history.start({pushState: true});
+		Backbone.history.start();
+	})(jQuery);
+ </script>
+</html>
